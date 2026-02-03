@@ -1,0 +1,186 @@
+/* compressionz documentation styles */
+
+/* Teal/Cyan theme - representing efficiency, flow, and data compression */
+:root {
+  --sl-color-accent-low: #042f2e;
+  --sl-color-accent: #14b8a6;
+  --sl-color-accent-high: #ccfbf1;
+
+  /* Neutral slate grays with slight cool tint */
+  --sl-color-gray-1: #f1f5f9;
+  --sl-color-gray-2: #e2e8f0;
+  --sl-color-gray-3: #cbd5e1;
+  --sl-color-gray-4: #94a3b8;
+  --sl-color-gray-5: #64748b;
+  --sl-color-gray-6: #1e293b;
+  --sl-color-gray-7: #0f172a;
+
+  --sl-color-bg-nav: var(--sl-color-gray-7);
+  --sl-color-bg-sidebar: var(--sl-color-gray-7);
+  --sl-color-text: var(--sl-color-gray-1);
+  --sl-color-text-accent: var(--sl-color-accent);
+}
+
+:root[data-theme="light"] {
+  --sl-color-accent-low: #ccfbf1;
+  --sl-color-accent: #0d9488;
+  --sl-color-accent-high: #042f2e;
+
+  --sl-color-gray-1: #0f172a;
+  --sl-color-gray-2: #1e293b;
+  --sl-color-gray-3: #475569;
+  --sl-color-gray-4: #64748b;
+  --sl-color-gray-5: #94a3b8;
+  --sl-color-gray-6: #e2e8f0;
+  --sl-color-gray-7: #f8fafc;
+
+  --sl-color-bg-nav: var(--sl-color-gray-7);
+  --sl-color-bg-sidebar: var(--sl-color-gray-7);
+  --sl-color-text: var(--sl-color-gray-1);
+}
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Smooth theme transitions on all elements */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Dark text on orange active sidebar link for contrast */
+a[aria-current='page'] {
+  color: var(--sl-color-gray-7) !important;
+}
+
+/* Sidebar link hover */
+nav.sidebar a, .sidebar-content a {
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+/* Card hover effect */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* TOC link transitions */
+starlight-toc a {
+  transition: color 0.15s ease;
+}
+
+/* Content link underline animation */
+.sl-markdown-content a:not([class]) {
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0% 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1px;
+  transition: background-size 0.2s ease;
+}
+.sl-markdown-content a:not([class]):hover {
+  background-size: 100% 1px;
+}
+
+/* Code block copy button */
+.expressive-code button {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.expressive-code button:hover {
+  transform: scale(1.05);
+}
+
+/* Sidebar group expand/collapse */
+details summary {
+  transition: color 0.15s ease;
+}
+details[open] > summary {
+  color: var(--sl-color-accent);
+}
+
+/* Table styling */
+.sl-markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sl-markdown-content th {
+  background: var(--sl-color-accent-low);
+  font-weight: 600;
+}
+
+.sl-markdown-content th,
+.sl-markdown-content td {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--sl-color-gray-5);
+}
+
+.sl-markdown-content tr:nth-child(even) {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="dark"] .sl-markdown-content tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Badge styling */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-pure-zig {
+  background: #14b8a6;
+  color: #042f2e;
+}
+
+.badge-vendored {
+  background: #0891b2;
+  color: white;
+}
+
+.badge-recommended {
+  background: #06b6d4;
+  color: #042f2e;
+}
+
+/* Feature grid */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.feature-card {
+  padding: 1.5rem;
+  background: var(--sl-color-gray-6);
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.75rem;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--sl-color-accent);
+}
+
+.feature-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--sl-color-text);
+}
+
+.feature-card p {
+  margin: 0;
+  color: var(--sl-color-gray-3);
+  font-size: 0.9rem;
+}

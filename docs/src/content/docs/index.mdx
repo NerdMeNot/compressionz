@@ -1,0 +1,121 @@
+---
+title: Introduction
+description: A fast, ergonomic compression library for Zig with codec-specific APIs.
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+**compressionz** is a fast, ergonomic compression library for Zig with codec-specific APIs. Each codec module exposes only the features it supports, providing type-safe, discoverable interfaces for LZ4, Snappy, Zstd, Gzip, Brotli, and more.
+
+## Performance at a Glance
+
+| Metric | Value |
+|--------|-------|
+| LZ4 Compression | **36 GB/s** |
+| Zstd Throughput | **12 GB/s** |
+| Supported Codecs | **7** |
+| System Dependencies | **0** |
+
+## Quick Example
+
+```zig
+const cz = @import("compressionz");
+
+// Compress with Zstd
+const compressed = try cz.zstd.compress(data, allocator, .{});
+defer allocator.free(compressed);
+
+// Decompress
+const original = try cz.zstd.decompress(compressed, allocator, .{});
+defer allocator.free(original);
+```
+
+Each codec has its own module with tailored APIs. Use `cz.zstd`, `cz.lz4.frame`, `cz.lz4.block`, `cz.gzip`, `cz.snappy`, or `cz.brotli`.
+
+## Why compressionz?
+
+<CardGrid>
+  <Card title="Codec-Specific APIs" icon="puzzle">
+    Each codec exposes only its supported features. Type-safe, discoverable interfaces with no runtime codec selection overhead.
+  </Card>
+  <Card title="Blazing Fast" icon="rocket">
+    Pure Zig LZ4 and Snappy with SIMD optimizations achieve 36+ GB/s compression throughput.
+  </Card>
+  <Card title="Zero Dependencies" icon="approve-check">
+    All C libraries are vendored. No `brew install`, no `apt-get`. Works on any platform Zig supports.
+  </Card>
+  <Card title="Production Ready" icon="setting">
+    Streaming, dictionaries, checksums, decompression bomb protection. Everything you need.
+  </Card>
+</CardGrid>
+
+## Supported Codecs
+
+| Codec | Speed | Ratio | Streaming | Implementation |
+|-------|-------|-------|-----------|----------------|
+| **Zstd** | 12 GB/s | 99.9% | Yes | Vendored C |
+| **LZ4 Block** | 36 GB/s | 99.5% | No | Pure Zig |
+| **LZ4 Frame** | 4.8 GB/s | 99.3% | Yes | Pure Zig |
+| **Snappy** | 31 GB/s | 95.3% | No | Pure Zig |
+| **Gzip** | 2.4 GB/s | 99.2% | Yes | Vendored C |
+| **Brotli** | 1.3 GB/s | 99.9% | Yes | Vendored C |
+
+## Features
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <h3>Streaming API</h3>
+    <p>Process large files without loading everything into memory. Integrates with Zig's standard Reader/Writer interfaces.</p>
+  </div>
+  <div class="feature-card">
+    <h3>Dictionary Compression</h3>
+    <p>Dramatically improve ratios for small data with known patterns. Supported by Zstd and Zlib.</p>
+  </div>
+  <div class="feature-card">
+    <h3>Zero-Copy Options</h3>
+    <p>Compress into pre-allocated buffers for zero-allocation hot paths. Perfect for embedded or real-time systems.</p>
+  </div>
+  <div class="feature-card">
+    <h3>Auto-Detection</h3>
+    <p>Automatically detect compression format from magic bytes. Decompress unknown data without guessing.</p>
+  </div>
+  <div class="feature-card">
+    <h3>Archive Support</h3>
+    <p>Read and write ZIP and TAR archives with simple, ergonomic APIs. Extract or create with one function call.</p>
+  </div>
+  <div class="feature-card">
+    <h3>Decompression Bomb Protection</h3>
+    <p>Set maximum output size limits to protect against malicious compressed data.</p>
+  </div>
+</div>
+
+## Get Started
+
+<CardGrid>
+  <LinkCard
+    title="Installation"
+    description="Add compressionz to your Zig project in minutes."
+    href="/getting-started/installation/"
+  />
+  <LinkCard
+    title="Quick Start"
+    description="Learn the basics with practical examples."
+    href="/getting-started/quick-start/"
+  />
+  <LinkCard
+    title="Choosing a Codec"
+    description="Find the right codec for your use case."
+    href="/getting-started/choosing-a-codec/"
+  />
+  <LinkCard
+    title="Benchmarks"
+    description="Detailed performance analysis and comparisons."
+    href="/performance/benchmarks/"
+  />
+</CardGrid>
+
+## Requirements
+
+- **Zig 0.15.0** or later
+- **Any platform** Zig supports (Linux, macOS, Windows, etc.)
+- No external dependencies

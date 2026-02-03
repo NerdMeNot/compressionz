@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read Zig version
+        id: zig-version
+        run: echo "version=$(cat .zig-version)" >> $GITHUB_OUTPUT
+
+      - name: Setup Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: ${{ steps.zig-version.outputs.version }}
+
+      - name: Check formatting
+        run: zig fmt --check src/*.zig src/**/*.zig benchmarks/*.zig tests/**/*.zig build.zig
+
+      - name: Run unit tests
+        run: zig build test
+
+      - name: Run integration tests
+        run: zig build test-integration
+
+      - name: Run robustness tests
+        run: zig build test-robustness
+
+      - name: Build library
+        run: zig build
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-22.04  # kcov not available in ubuntu-24.04
+    continue-on-error: true  # Coverage is best-effort
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read Zig version
+        id: zig-version
+        run: echo "version=$(cat .zig-version)" >> $GITHUB_OUTPUT
+
+      - name: Setup Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: ${{ steps.zig-version.outputs.version }}
+
+      - name: Install kcov
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y kcov
+
+      - name: Build and run tests with coverage
+        run: |
+          # Build the test executable
+          zig build test 2>&1 || true
+          # Find and run with kcov if test binary exists
+          if [ -f ".zig-cache/o/test" ]; then
+            kcov --include-path=src coverage .zig-cache/o/test
+          else
+            echo "Test binary not found, skipping coverage"
+          fi
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          directory: coverage
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  bench:
+    name: Benchmarks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read Zig version
+        id: zig-version
+        run: echo "version=$(cat .zig-version)" >> $GITHUB_OUTPUT
+
+      - name: Setup Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: ${{ steps.zig-version.outputs.version }}
+
+      - name: Run benchmarks
+        run: zig build bench -Doptimize=ReleaseFast

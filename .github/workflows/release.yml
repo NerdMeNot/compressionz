@@ -1,0 +1,173 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      zig_version: ${{ steps.zig-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read Zig version
+        id: zig-version
+        run: echo "version=$(cat .zig-version)" >> $GITHUB_OUTPUT
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ inputs.version }}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Version must be in format X.Y.Z (e.g., 1.0.0)"
+            exit 1
+          fi
+          echo "Version $VERSION is valid"
+
+      - name: Check tag doesn't exist
+        run: |
+          TAG="v${{ inputs.version }}-zig${{ steps.zig-version.outputs.version }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Error: Tag $TAG already exists"
+            exit 1
+          fi
+          echo "Tag $TAG is available"
+
+  test:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: ${{ needs.validate.outputs.zig_version }}
+
+      - name: Run unit tests
+        run: zig build test
+
+      - name: Run integration tests
+        run: zig build test-integration
+
+      - name: Run robustness tests
+        run: zig build test-robustness
+
+      - name: Build library
+        run: zig build
+
+  release:
+    needs: [validate, test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: ${{ needs.validate.outputs.zig_version }}
+
+      - name: Update version in build.zig.zon
+        run: |
+          sed -i 's/\.version = "[^"]*"/.version = "${{ inputs.version }}"/' build.zig.zon
+          cat build.zig.zon | grep version
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit version bump (if changed)
+        run: |
+          git add build.zig.zon
+          if ! git diff --staged --quiet; then
+            git commit -m "Release v${{ inputs.version }}-zig${{ needs.validate.outputs.zig_version }}"
+            git push origin main
+          fi
+
+      - name: Create and push tag
+        run: |
+          TAG="v${{ inputs.version }}-zig${{ needs.validate.outputs.zig_version }}"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          cat << 'EOF' > release_notes.md
+          ## compressionz v${{ inputs.version }}
+
+          Fast, ergonomic compression library for Zig with a unified API across multiple codecs.
+
+          ### Highlights
+          - **36 GB/s** compression with LZ4
+          - **12 GB/s** with Zstd
+          - Zero system dependencies
+          - Pure Zig + vendored C
+
+          ### Requirements
+          - **Zig**: ${{ needs.validate.outputs.zig_version }} or compatible
+          - **OS**: Linux, macOS, Windows
+
+          ### Installation
+
+          Add to your `build.zig.zon`:
+
+          ```zig
+          .dependencies = .{
+              .compressionz = .{
+                  .url = "https://github.com/${{ github.repository }}/archive/v${{ inputs.version }}-zig${{ needs.validate.outputs.zig_version }}.tar.gz",
+                  .hash = "...", // Run zig build to get the hash
+              },
+          },
+          ```
+
+          Then in `build.zig`:
+
+          ```zig
+          const compressionz = b.dependency("compressionz", .{
+              .target = target,
+              .optimize = optimize,
+          });
+          exe.root_module.addImport("compressionz", compressionz.module("compressionz"));
+          ```
+
+          ### Supported Codecs
+          | Codec | Implementation | Streaming | Dictionary |
+          |-------|----------------|-----------|------------|
+          | LZ4 | Pure Zig | Yes | No |
+          | Snappy | Pure Zig | No | No |
+          | Zstd | Vendored C | Yes | Yes |
+          | Gzip | Vendored C | Yes | No |
+          | Brotli | Vendored C | Yes | No |
+
+          ### What's New
+
+          See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
+
+          ---
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/...v${{ inputs.version }}-zig${{ needs.validate.outputs.zig_version }}
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ inputs.version }}-zig${{ needs.validate.outputs.zig_version }}
+          name: compressionz v${{ inputs.version }} (Zig ${{ needs.validate.outputs.zig_version }})
+          body_path: release_notes.md
+          prerelease: ${{ inputs.prerelease }}
+          generate_release_notes: true

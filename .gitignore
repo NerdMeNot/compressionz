@@ -1,0 +1,41 @@
+# Zig
+zig-cache/
+zig-out/
+.zig-cache/
+
+# Build artifacts
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.lib
+*.exe
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Documentation site
+docs/node_modules/
+docs/.astro/
+docs/bun.lockb
+docs/bun.lock
+
+# Test artifacts
+*.log
+coverage/
+test-results/
+
+# Benchmarks output
+benchmarks/results/
+*.bench
+
+# Local development
+.env
+.env.local
+*.local

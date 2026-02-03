@@ -1,0 +1,14 @@
+.{
+    .name = .compressionz,
+    .version = "1.0.0",
+    .minimum_zig_version = "0.15.0",
+    .fingerprint = 0x79bbac3cdbe9ef78,
+
+    .dependencies = .{},
+
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}

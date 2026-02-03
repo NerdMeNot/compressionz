@@ -1,0 +1,35 @@
+compressionz
+Copyright 2024 compressionz contributors
+
+This product includes software developed by third parties.
+
+===============================================================================
+Zstandard (zstd)
+===============================================================================
+Copyright (c) Meta Platforms, Inc. and affiliates. All rights reserved.
+Licensed under the BSD License.
+https://github.com/facebook/zstd
+
+===============================================================================
+zlib
+===============================================================================
+Copyright (C) 1995-2022 Jean-loup Gailly and Mark Adler
+Licensed under the zlib License.
+https://zlib.net/
+
+===============================================================================
+Brotli
+===============================================================================
+Copyright 2013 Google Inc. All Rights Reserved.
+Licensed under the MIT License.
+https://github.com/google/brotli
+
+===============================================================================
+
+The LZ4 and Snappy implementations in this library are original Pure Zig
+implementations, not ports of the reference C code. They implement the
+published format specifications:
+
+- LZ4 Frame Format: https://github.com/lz4/lz4/blob/dev/doc/lz4_Frame_format.md
+- LZ4 Block Format: https://github.com/lz4/lz4/blob/dev/doc/lz4_Block_format.md
+- Snappy Format: https://github.com/google/snappy/blob/main/format_description.txt

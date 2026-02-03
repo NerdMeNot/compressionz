@@ -1,0 +1,53 @@
+---
+import type { Props } from '@astrojs/starlight/props';
+import Default from '@astrojs/starlight/components/Head.astro';
+import { ClientRouter } from 'astro:transitions';
+---
+
+<Default {...Astro.props}><slot /></Default>
+<ClientRouter />
+
+<style is:global>
+  /* Cross-dissolve transition - cinematic overlap */
+  @keyframes dissolve-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes dissolve-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  ::view-transition-old(root) {
+    animation: dissolve-out 0.3s ease-in-out;
+  }
+
+  ::view-transition-new(root) {
+    animation: dissolve-in 0.3s ease-in-out;
+  }
+
+  /* Key: both layers visible during transition for true cross-dissolve */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    mix-blend-mode: normal;
+    animation-fill-mode: both;
+  }
+
+  /* Stack them on top of each other */
+  ::view-transition-old(root) {
+    z-index: 1;
+  }
+
+  ::view-transition-new(root) {
+    z-index: 2;
+  }
+</style>
